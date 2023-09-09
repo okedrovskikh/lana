@@ -1,0 +1,18 @@
+@startuml Context
+!include <C4/C4_Container>
+
+/'Users'/
+Person(user, "User", "Application user")
+Person(admin, "Admin", "Application admin")
+
+/'Systems'/
+System(giffter, "Giffter", "Application")
+
+/'Relations'/
+Rel(user, giffter, "Use", "Interact with core using front application")
+Rel(admin, giffter, "Use", "Interact with core, can change setting, watch opened data")
+
+/'Legend'/
+SHOW_LEGEND()
+
+@enduml

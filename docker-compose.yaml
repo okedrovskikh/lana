@@ -1,0 +1,37 @@
+version: '3.8'
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: on-failure
+    command:
+      - --web.listen-address=:10000
+      - --storage.tscb.path=/prometheus
+      - --config.file=?etc/prometheus/prometheus.yaml
+    expose:
+      - 10000
+    ports:
+      - 10000:10000
+    networks:
+      - app-network
+  grafana:
+    image: grafana/grafana:8.2.6
+    container_name: grafana
+    restart: on-failure
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: false
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    networks:
+      - app-network
+    depends_on:
+      - prometheus
