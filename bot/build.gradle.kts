@@ -4,7 +4,7 @@ plugins {
     id("java")
 }
 
-group = "urfu.ru"
+group = "lana"
 version = "1.0-SNAPSHOT"
 
 repositories {
