@@ -1,3 +1,6 @@
+server:
+  port: 8081
+
 management:
   endpoints:
     web:
@@ -10,3 +13,12 @@ management:
     metrics:
       export:
         enabled: true
+
+telegram:
+  bot:
+    token: ${TG_TOKEN}
+    name: Lana
+
+rest:
+  core:
+    url: http://localhost:8080
