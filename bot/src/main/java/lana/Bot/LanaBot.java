@@ -18,6 +18,7 @@ public class LanaBot extends TelegramLongPollingBot {
 
     private final BotProperties botProperties;
     private final BotClient botClient;
+
     @Autowired
     public LanaBot(BotProperties botProperties, BotClient botClient) {
         super(botProperties.getToken());
@@ -31,30 +32,8 @@ public class LanaBot extends TelegramLongPollingBot {
             sendMessage(update);
         }
         //тут типа действия при том или ином нажатии кнопки, я пока сделал заглушку такую
-        else if (update.hasCallbackQuery()){
-            String callData = update.getCallbackQuery().getData();
-            if(callData.equals("ACCEPTED")){
-                SendMessage sendMessage = SendMessage.builder()
-                        .text("Принял предложку")
-                        .chatId(update.getCallbackQuery().getMessage().getChatId())
-                        .build();
-                try {
-                    execute(sendMessage);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            else{
-                SendMessage sendMessage = SendMessage.builder()
-                        .text("Отклонил предложку")
-                        .chatId(update.getCallbackQuery().getMessage().getChatId())
-                        .build();
-                try {
-                    execute(sendMessage);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        if (update.hasCallbackQuery()) {
+            processingCallBackData(update);
         }
     }
 
@@ -85,5 +64,30 @@ public class LanaBot extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
         return botProperties.getName();
+    }
+
+    public void processingCallBackData(Update update) {
+        String callData = update.getCallbackQuery().getData();
+        if (callData.equals("ACCEPTED")) {
+            SendMessage sendMessage = SendMessage.builder()
+                    .text("Принял предложку")
+                    .chatId(update.getCallbackQuery().getMessage().getChatId())
+                    .build();
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            SendMessage sendMessage = SendMessage.builder()
+                    .text("Отклонил предложку")
+                    .chatId(update.getCallbackQuery().getMessage().getChatId())
+                    .build();
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
