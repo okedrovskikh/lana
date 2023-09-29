@@ -13,7 +13,7 @@ public enum BotCallbacks {
     private final String callbackText;
 
 
-    BotCallbacks(String callbackData, String callbackText) {
+    BotCallbacks(String callbackText, String callbackData) {
         this.callbackData = callbackData;
         this.callbackText = callbackText;
     }
