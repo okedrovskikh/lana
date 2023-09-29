@@ -3,6 +3,7 @@ package lana.Bot;
 
 import lana.Bot.Client.BotClient;
 import lana.Bot.handlers.KeyBoardHandler;
+import lana.Bot.properties.BotCallbacks;
 import lana.Bot.properties.BotProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.List;
+
 @Component
 public class LanaBot extends TelegramLongPollingBot {
-
+    private final List<String> adminsID = List.of("772298418", "387209539");
     private final BotProperties botProperties;
     private final BotClient botClient;
 
@@ -28,36 +31,14 @@ public class LanaBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+
+        //тупая заглушка чтобы просто протестить перессылку админу
         if (update.hasMessage()) {
-            sendMessage(update);
+            createMessageToAdminsApprove(update);
         }
         //тут типа действия при том или ином нажатии кнопки, я пока сделал заглушку такую
-        if (update.hasCallbackQuery()) {
+         if (update.hasCallbackQuery()) {
             processingCallBackData(update);
-        }
-    }
-
-    private void sendMessage(Update update) {
-        if (!update.hasMessage())
-            return;
-        KeyBoardHandler keyBoardHandler = new KeyBoardHandler();
-        SendMessage sendMessage = SendMessage.builder()
-                .text(update.getMessage().getText())
-                .chatId(update.getMessage().getChatId())
-                .build();
-
-        SendChatAction sendChatAction = new SendChatAction();
-
-        sendChatAction.setChatId(update.getMessage().getChatId());
-        sendChatAction.setAction(ActionType.TYPING);
-
-        sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
-
-        try {
-            execute(sendChatAction);
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
         }
     }
 
@@ -66,28 +47,42 @@ public class LanaBot extends TelegramLongPollingBot {
         return botProperties.getName();
     }
 
-    public void processingCallBackData(Update update) {
+    private void processingCallBackData(Update update) {
+
         String callData = update.getCallbackQuery().getData();
-        if (callData.equals("ACCEPTED")) {
+
+        String answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ? "Принял предложку" : "Отклонил предложку";
+
+        SendMessage sendMessage = SendMessage.builder()
+                .text(answer)
+                .chatId(update.getCallbackQuery().getMessage().getChatId())
+                .build();
+
+        sendMessage(sendMessage);
+    }
+
+    private void sendMessage(SendMessage sendMessage) {
+        SendChatAction sendChatAction = SendChatAction.builder()
+                .chatId(sendMessage.getChatId())
+                .action(ActionType.TYPING.toString())
+                .build();
+
+        try {
+            execute(sendMessage);
+            execute(sendChatAction);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void createMessageToAdminsApprove(Update update) {
+        KeyBoardHandler keyBoardHandler = new KeyBoardHandler();
+        for(var adminID : adminsID) {
             SendMessage sendMessage = SendMessage.builder()
-                    .text("Принял предложку")
-                    .chatId(update.getCallbackQuery().getMessage().getChatId())
+                    .text(update.getMessage().getText())
+                    .chatId(adminID)
                     .build();
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            SendMessage sendMessage = SendMessage.builder()
-                    .text("Отклонил предложку")
-                    .chatId(update.getCallbackQuery().getMessage().getChatId())
-                    .build();
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
+            sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
+            sendMessage(sendMessage);
         }
     }
 }
