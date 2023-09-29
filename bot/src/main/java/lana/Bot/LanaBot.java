@@ -2,6 +2,7 @@ package lana.Bot;
 
 
 import lana.Bot.Client.BotClient;
+import lana.Bot.handlers.KeyBoardHandler;
 import lana.Bot.properties.BotProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,14 +30,38 @@ public class LanaBot extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             sendMessage(update);
         }
+        //тут типа действия при том или ином нажатии кнопки, я пока сделал заглушку такую
+        else if (update.hasCallbackQuery()){
+            String callData = update.getCallbackQuery().getData();
+            if(callData.equals("ACCEPTED")){
+                SendMessage sendMessage = SendMessage.builder()
+                        .text("Принял предложку")
+                        .chatId(update.getCallbackQuery().getMessage().getChatId())
+                        .build();
+                try {
+                    execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else{
+                SendMessage sendMessage = SendMessage.builder()
+                        .text("Отклонил предложку")
+                        .chatId(update.getCallbackQuery().getMessage().getChatId())
+                        .build();
+                try {
+                    execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
     private void sendMessage(Update update) {
         if (!update.hasMessage())
             return;
-
-        System.out.println(botClient.abc());
-
+        KeyBoardHandler keyBoardHandler = new KeyBoardHandler();
         SendMessage sendMessage = SendMessage.builder()
                 .text(update.getMessage().getText())
                 .chatId(update.getMessage().getChatId())
@@ -47,6 +72,7 @@ public class LanaBot extends TelegramLongPollingBot {
         sendChatAction.setChatId(update.getMessage().getChatId());
         sendChatAction.setAction(ActionType.TYPING);
 
+        sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
 
         try {
             execute(sendChatAction);
