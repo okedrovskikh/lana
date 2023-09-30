@@ -1,7 +1,7 @@
 package lana.channel;
 
-import lana.models.dto.ChannelCreateDto;
-import lana.models.dto.ChannelUpdateDto;
+import lana.models.dto.channel.ChannelCreateDto;
+import lana.models.dto.channel.ChannelUpdateDto;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
