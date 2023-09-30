@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      author: okedrovskikh
+      id: create_table_channel
+      changes:
+        - sql:
+            sql: create extension if not exists "uuid-ossp"
+        - createTable:
+            tableName: channel
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValue: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
