@@ -31,6 +31,5 @@ public class KeyBoardHandler {
                 .text(callback.getCallbackText())
                 .callbackData(callback.getCallbackData())
                 .build();
-
     }
 }

@@ -11,6 +11,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -50,7 +51,8 @@ public class LanaBot extends TelegramLongPollingBot {
     private void processingCallBackData(Update update) {
 
         String callData = update.getCallbackQuery().getData();
-
+        int messageId = update.getCallbackQuery().getMessage().getMessageId();
+        long chatId = update.getCallbackQuery().getMessage().getChatId();
         String answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ? "Принял предложку" : "Отклонил предложку";
 
         SendMessage sendMessage = SendMessage.builder()
@@ -58,7 +60,21 @@ public class LanaBot extends TelegramLongPollingBot {
                 .chatId(update.getCallbackQuery().getMessage().getChatId())
                 .build();
 
-        sendMessage(sendMessage);
+
+        EditMessageText editMessageText =  EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(answer).build();
+
+        editMessage(editMessageText);
+    }
+
+    private void editMessage(EditMessageText editMessageText) {
+        try {
+            execute(editMessageText);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void sendMessage(SendMessage sendMessage) {
