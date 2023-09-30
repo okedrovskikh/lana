@@ -19,7 +19,7 @@ import java.util.List;
 
 @Component
 public class LanaBot extends TelegramLongPollingBot {
-    private final List<String> adminsID = List.of("772298418", "387209539");
+    private final List<String> adminsID = List.of("772298418", "387209539","441326472");
     private final BotProperties botProperties;
     private final BotClient botClient;
 
@@ -38,7 +38,7 @@ public class LanaBot extends TelegramLongPollingBot {
             createMessageToAdminsApprove(update);
         }
         //тут типа действия при том или ином нажатии кнопки, я пока сделал заглушку такую
-         if (update.hasCallbackQuery()) {
+        if (update.hasCallbackQuery()) {
             processingCallBackData(update);
         }
     }
@@ -53,19 +53,12 @@ public class LanaBot extends TelegramLongPollingBot {
         String callData = update.getCallbackQuery().getData();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
         long chatId = update.getCallbackQuery().getMessage().getChatId();
-        String answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ? "Принял предложку" : "Отклонил предложку";
-
-        SendMessage sendMessage = SendMessage.builder()
-                .text(answer)
-                .chatId(update.getCallbackQuery().getMessage().getChatId())
-                .build();
-
-
-        EditMessageText editMessageText =  EditMessageText.builder()
+        String answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ?
+                "Принял предложку" : getReactionOfReject(update.getCallbackQuery().getMessage().getText());
+        EditMessageText editMessageText = EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
-                .text(answer).build();
-
+                .text(answer).parseMode("MarkdownV2").build();
         editMessage(editMessageText);
     }
 
@@ -90,9 +83,10 @@ public class LanaBot extends TelegramLongPollingBot {
             throw new RuntimeException(e);
         }
     }
+
     private void createMessageToAdminsApprove(Update update) {
         KeyBoardHandler keyBoardHandler = new KeyBoardHandler();
-        for(var adminID : adminsID) {
+        for (var adminID : adminsID) {
             SendMessage sendMessage = SendMessage.builder()
                     .text(update.getMessage().getText())
                     .chatId(adminID)
@@ -100,5 +94,9 @@ public class LanaBot extends TelegramLongPollingBot {
             sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
             sendMessage(sendMessage);
         }
+    }
+
+    private String getReactionOfReject(String answer) {
+        return "~" + answer + "~";
     }
 }
