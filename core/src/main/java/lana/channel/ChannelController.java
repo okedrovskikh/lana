@@ -1,8 +1,8 @@
 package lana.channel;
 
 import jakarta.validation.Valid;
-import lana.models.dto.ChannelCreateDto;
-import lana.models.dto.ChannelUpdateDto;
+import lana.models.dto.channel.ChannelCreateDto;
+import lana.models.dto.channel.ChannelUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

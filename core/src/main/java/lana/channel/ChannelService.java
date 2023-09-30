@@ -1,8 +1,8 @@
 package lana.channel;
 
-import lana.exceptions.CoreExceptions.NotFoundException;
-import lana.models.dto.ChannelCreateDto;
-import lana.models.dto.ChannelUpdateDto;
+import lana.exceptions.NotFoundException;
+import lana.models.dto.channel.ChannelCreateDto;
+import lana.models.dto.channel.ChannelUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

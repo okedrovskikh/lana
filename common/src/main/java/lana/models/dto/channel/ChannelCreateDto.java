@@ -1,4 +1,4 @@
-package lana.models.dto;
+package lana.models.dto.channel;
 
 import lombok.Data;
 

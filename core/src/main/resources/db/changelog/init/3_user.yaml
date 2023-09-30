@@ -1,12 +1,10 @@
 databaseChangeLog:
   - changeSet:
       author: okedrovskikh
-      id: create_channel_table
+      id: add_core_user_table
       changes:
-        - sql:
-            sql: create extension if not exists "uuid-ossp"
         - createTable:
-            tableName: channel
+            tableName: core_user
             columns:
               - column:
                   name: id
