@@ -1,2 +1,1 @@
-include("bot")
-include("common")
+include("service")

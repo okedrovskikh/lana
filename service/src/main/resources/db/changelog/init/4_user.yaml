@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      author: okedrovskikh
+      id: add_user_table
+      changes:
+        - createTable:
+            tableName: core_user
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValue: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: telegram_id
+                  type: bigint
+                  constraints:
+                    nullable: false

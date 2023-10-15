@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      author: okedrovskikh
+      id: add_preferences_table
+      changes:
+        - createTable:
+            tableName: preferences
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: preferences_user_fk
+                    referencedTableName: user(id)
+              - column:
+                  name: resource_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: action
+                  type: varchar
+                  constraints:
+                    nullable: false
