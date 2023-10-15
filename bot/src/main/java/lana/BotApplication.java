@@ -1,6 +1,6 @@
 package lana;
 
-import lana.Bot.properties.BotProperties;
+import lana.properties.BotProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,6 +11,5 @@ public class BotApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(BotApplication.class, args);
-
     }
 }

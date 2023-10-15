@@ -1,24 +1,14 @@
-server:
-  port: 8081
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "health, info, prometheus"
-  metrics:
-    tags:
-      service: bot
-  prometheus:
-    metrics:
-      export:
-        enabled: true
-
 telegram:
   bot:
     token: ${TG_TOKEN}
     name: Lana
 
-rest:
-  core:
-    url: http://localhost:8080
+spring:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRES_DB_URL:jdbc:postgresql://localhost:5433/core}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:123}

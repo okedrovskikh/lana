@@ -1,11 +1,9 @@
-package lana.Bot;
+package lana.bot;
 
-
-import lana.Bot.Client.BotClient;
-import lana.Bot.handlers.KeyBoardHandler;
-import lana.Bot.properties.BotCallbacks;
-import lana.Bot.properties.BotProperties;
-import org.springframework.beans.factory.annotation.Autowired;
+import lana.clients.BotClient;
+import lana.handlers.KeyBoardHandler;
+import lana.properties.BotCallbacks;
+import lana.properties.BotProperties;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
@@ -23,7 +21,6 @@ public class LanaBot extends TelegramLongPollingBot {
     private final BotProperties botProperties;
     private final BotClient botClient;
 
-    @Autowired
     public LanaBot(BotProperties botProperties, BotClient botClient) {
         super(botProperties.getToken());
         this.botProperties = botProperties;

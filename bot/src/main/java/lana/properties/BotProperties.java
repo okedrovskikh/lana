@@ -1,9 +1,6 @@
-package lana.Bot.properties;
+package lana.properties;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
@@ -20,5 +17,3 @@ public class BotProperties {
         this.name = name;
     }
 }
-
-

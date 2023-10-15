@@ -1,4 +1,4 @@
-package lana.Bot.properties;
+package lana.properties;
 
 
 import lombok.Getter;

@@ -1,6 +1,6 @@
-package lana.Bot;
+package lana.bot;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -10,9 +10,10 @@ import org.telegram.telegrambots.meta.generics.BotSession;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BotStarter {
     private final LanaBot bot;
+
     @EventListener(ContextRefreshedEvent.class)
     public void start() throws TelegramApiException {
         try {
