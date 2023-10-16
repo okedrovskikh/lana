@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      author: okedrovskikh
+      id: create_post_table
+      changes:
+        - createTable:
+            tableName: post
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValue: uuid_generate_v4()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: chat_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: chat_fk
+                    referencedTableName: channel(id)
+              - column:
+                  name: author_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: posts_user_fk
+                    referencedTableName: user(id)
+              - column:
+                  name: payload
+                  type: jsonb
+                  constraints:
+                    nullable: false
