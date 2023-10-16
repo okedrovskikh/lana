@@ -1,6 +1,5 @@
 package lana.bot;
 
-import lana.clients.BotClient;
 import lana.handlers.KeyBoardHandler;
 import lana.properties.BotProperties;
 import org.springframework.stereotype.Component;
@@ -18,12 +17,10 @@ import java.util.List;
 public class LanaBot extends TelegramLongPollingBot {
     private final List<String> adminsID = List.of("772298418", "387209539","441326472");
     private final BotProperties botProperties;
-    private final BotClient botClient;
 
-    public LanaBot(BotProperties botProperties, BotClient botClient) {
+    public LanaBot(BotProperties botProperties) {
         super(botProperties.getToken());
         this.botProperties = botProperties;
-        this.botClient = botClient;
     }
 
     @Override

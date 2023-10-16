@@ -5,10 +5,8 @@ networks:
     driver: bridge
 
 services:
-  core:
-    build:
-      context: ./
-      dockerfile: ./core/Dockerfile
+  service:
+    build: ./service
     container_name: core
     restart: on-failure
     environment:
@@ -28,7 +26,7 @@ services:
     restart: on-failure
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_DB: kokline
+      POSTGRES_DB: lana
       POSTGRES_PASSWORD: 123
     ports:
       - 5433:5432

@@ -26,3 +26,8 @@ databaseChangeLog:
                     nullable: false
                     foreignKeyName: posts_user_fk
                     referencedTableName: user(id)
+              - column:
+                  name: payload
+                  type: jsonb
+                  constraints:
+                    nullable: false

@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       author: okedrovskikh
-      id: add_preferences_table
+      id: create_preferences_table
       changes:
         - createTable:
             tableName: preferences

@@ -1,10 +1,11 @@
 package lana.exceptions;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+public class NotFoundException extends RuntimeException {
+    public NotFoundException(String message) {
+        super(message);
+    }
 
-public class NotFoundException extends CoreException {
-
-    public NotFoundException(String message, Throwable cause) {
-        super(HttpStatus.NOT_FOUND, message, cause);
+    public NotFoundException(String message, Throwable throwable) {
+        super(message, throwable);
     }
 }
