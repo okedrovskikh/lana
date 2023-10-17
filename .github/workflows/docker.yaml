@@ -13,6 +13,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      LOGIN: ${{ secrets.DOCKER_LOGIN }}
+      NAME: ${{ secrets.DOCKER_NAME }}
+
     steps:
       - uses: actions/checkout@v3
       - name: Build the Docker image
