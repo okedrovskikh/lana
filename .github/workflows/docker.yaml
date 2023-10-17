@@ -1,0 +1,35 @@
+name: Build and push docker image
+
+on:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: read
+
+jobs:
+  build_image:
+    needs: [ build ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker build --t $LOGIN/$NAME:${GITHUB_REF:11} -f ./service/Dockerfile
+
+  push_image:
+    needs: [ build_image ]
+
+    runs-on: ubuntu-latest
+
+    env:
+      LOGIN: ${{ secrets.DOCKER_LOGIN }}
+      NAME: ${{ secrets.DOCKER_NAME }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to docker.io
+        run: echo ${{ secrets.DOCKER_PWD }} | docker login -u ${{ secrets.DOCKER_LOGIN }} --password-stdin
+      - name: Push image to docker.io
+        run: docker push $LOGIN/$NAME:${GITHUB_REF:11}

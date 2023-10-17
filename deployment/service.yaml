@@ -1,0 +1,40 @@
+# Lana pods
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lana
+spec:
+  selector:
+    matchLabels:
+      app: lana
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: lana
+    spec:
+      containers:
+        - image: lana:1.0.0
+          name: lana
+          imagePullPolicy: Never
+          env:
+            - name: POSTGRES_DB_URL
+              value: jdbc:postgresql://postgres-service:5432/lana
+            - name: TG_TOKEN
+              value: token
+          ports:
+            - name: lana-server
+              containerPort: 8080
+---
+# Lana service
+apiVersion: v1
+kind: Service
+metadata:
+  name: lana-service
+spec:
+  selector:
+    app: lana
+  ports:
+    - targetPort: lana-server
+      port: 8080
+  type: LoadBalancer
