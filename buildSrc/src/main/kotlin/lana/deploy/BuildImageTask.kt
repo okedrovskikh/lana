@@ -8,7 +8,7 @@ import java.io.SequenceInputStream
 import java.util.concurrent.Executors
 
 abstract class BuildImageTask : DefaultTask() {
-    private val coroutinePool = Executors.newFixedThreadPool(5)
+    private val coroutinePool = Executors.newFixedThreadPool(5) // These threads + gradle daemon thread are actually 1
 
     @get:Input
     open var version: String = "latest"
