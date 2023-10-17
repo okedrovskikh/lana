@@ -7,10 +7,11 @@ networks:
 services:
   service:
     build: ./service
-    container_name: core
+    container_name: lana
     restart: on-failure
     environment:
       POSTGRES_URL: jdbc:postgresql://postgres:5432/lana
+      TG_TOKEN: token
     ports:
       - 8080:8080
     networks:
