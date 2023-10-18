@@ -13,6 +13,10 @@
 При этом запускается прокси, который работает пока вы не закроете его. Также он заблокирует терминал до завершения.
 После запуска в консоли отобразиться адрес и порт, по которому можно обращаться в api.
 
-Билдим image и пушим его в локальный докер хаб миникуба командой
+Забилдить image и добавить образ в registry minikube'а можно грейдл таской
 
-    minikube image load {image name}
+    ./gradlew buildImageAndPublishToMinikube
+
+Применить deployments и services можно таской
+
+    ./gradlew applyDeployments

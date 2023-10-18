@@ -1,4 +1,3 @@
-# Lana pods
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,16 +24,3 @@ spec:
           ports:
             - name: lana-server
               containerPort: 8080
----
-# Lana service
-apiVersion: v1
-kind: Service
-metadata:
-  name: lana-service
-spec:
-  selector:
-    app: lana
-  ports:
-    - targetPort: lana-server
-      port: 8080
-  type: LoadBalancer

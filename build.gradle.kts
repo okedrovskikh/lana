@@ -1,17 +1,23 @@
-import lana.deploy.BuildImageTask
-import lana.deploy.PublishDockerImageToLocalMinikube
+import lana.tasks.command.line.TerminalCommandTask
 
 tasks {
-    val buildTask = register<BuildImageTask>("buildImage") {
-        imageName = "lana"
-        version = "1.0.0"
-        dockerfilePath = "./service"
+    val buildTask = register<TerminalCommandTask>("buildImage") {
+        command = "docker build -t lana:latest ./service"
     }
-    val publishTask = register<PublishDockerImageToLocalMinikube>("publishToMinikube") {
-        imageName = "lana"
-        version = "1.0.0"
+    val publishTask = register<TerminalCommandTask>("publishToLocalMinikube") {
+        command = "minikube image load lana:latest"
     }
     register("buildImageAndPublishToMinikube") {
         dependsOn(buildTask, publishTask)
+    }
+
+    val applyPostgresDeploymentAndServiceTask = register<TerminalCommandTask>("applyPostgres") {
+        command = "kubectl apply -f ./deployment"
+    }
+    val applyLanaDeploymentAndServiceTask = register<TerminalCommandTask>("applyLana") {
+        command = "kubectl apply -f ./service/deployment"
+    }
+    register("applyDeployments") {
+        dependsOn(applyPostgresDeploymentAndServiceTask, applyLanaDeploymentAndServiceTask)
     }
 }
