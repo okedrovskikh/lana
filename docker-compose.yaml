@@ -10,13 +10,10 @@ services:
     container_name: lana
     restart: on-failure
     environment:
-      POSTGRES_URL: jdbc:postgresql://postgres:5432/lana
-      TG_TOKEN: token
-    ports:
-      - 8080:8080
+      POSTGRES_DB_URL: jdbc:postgresql://postgres:5432/lana
+      TG_TOKEN: 6526296723:AAFPI60dFGA4AKhESy52efFGdvJ5o7b1m6A
     networks:
-      - bff-net
-      - db-net
+      - app-network
     depends_on:
       postgres:
         condition: service_healthy
@@ -32,7 +29,7 @@ services:
     ports:
       - 5433:5432
     networks:
-      - db-net
+      - app-network
     healthcheck:
       test: pg_isready -U postgres
       interval: 10s

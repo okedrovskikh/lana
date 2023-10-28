@@ -3,7 +3,7 @@ COPY ./ /usr/lana
 WORKDIR /usr/lana
 RUN gradle build -x test
 
-FROM openjdk:17-alpine3.14
+FROM openjdk:17
 COPY --from=build /usr/lana/build/libs/*.jar /usr/app/App.jar
 WORKDIR /usr/app
 EXPOSE 8080
