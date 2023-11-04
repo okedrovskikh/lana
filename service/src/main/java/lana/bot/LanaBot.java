@@ -1,23 +1,17 @@
 package lana.bot;
 
 import lana.handlers.KeyBoardHandler;
-import lana.post.Post;
 import lana.properties.BotProperties;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
-import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updates.GetUpdates;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberAdministrator;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberLeft;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
@@ -25,34 +19,48 @@ import java.util.List;
 @Component
 public class LanaBot extends TelegramLongPollingBot {
 
-    private final List<String> adminsID = List.of("772298418", "387209539","441326472");
+//    private final List<String> adminsID = List.of("772298418", "387209539","441326472");
     private final BotProperties botProperties;
     private final PostCreatorService postCreatorService;
+    private final GroupService groupService;
 
-    public LanaBot(BotProperties botProperties, PostCreatorService postCreatorService) {
+    public LanaBot(BotProperties botProperties , PostCreatorService postCreatorService, GroupService groupService) {
         super(botProperties.getToken());
-        this.postCreatorService = postCreatorService;
         this.botProperties = botProperties;
+        this.postCreatorService = postCreatorService;
+        this.groupService = groupService;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()) {
-            List<User> users = update.getMessage().getNewChatMembers();
-            if(users.size() != 0) {
-                checkUpdatesAdmins(users);
+        if (update.hasMyChatMember()) {
+            checkGroupAndBotIsAdmin(update);
+            var myChatMember = update.getMyChatMember();
+            System.out.println(myChatMember.getChat().getType());
+            var toChatMember = myChatMember.getNewChatMember();
+            System.out.println("is bot --" + toChatMember.getUser().getIsBot());
+            if (toChatMember.getUser().getIsBot() && toChatMember.getStatus().equals("kick")) {
+                System.out.println("Is I, BOT");
+            } else {
+                System.out.println("NO");
             }
+        } else{
+            System.out.println("NO1");
         }
+//            List<User> users = update.getChatMember().getChat().getPinnedMessage().getNewChatMembers();
+//            if(users.size() != 0) {
+//                checkUpdatesAdmins(users);
+//            }
+
 
         //тупая заглушка чтобы просто протестить перессылку админу
-        if (update.hasMessage()) {
-
-            createMessageToAdminsApprove(update);
-        }
-        //тут типа действия при том или ином нажатии кнопки, я пока сделал заглушку такую
-        if (update.hasCallbackQuery()) {
-            processingCallBackData(update);
-        }
+//        if (update.hasMessage()) {
+//            createMessageToAdminsApprove(update);
+//        }
+//        //тут типа действия при том или ином нажатии кнопки, я пока сделал заглушку такую
+//        if (update.hasCallbackQuery()) {
+//            processingCallBackData(update);
+//        }
     }
 
     @Override
@@ -107,14 +115,14 @@ public class LanaBot extends TelegramLongPollingBot {
 
         KeyBoardHandler keyBoardHandler = new KeyBoardHandler();
 
-        for (var adminID : adminsID) {
-            SendMessage sendMessage = SendMessage.builder()
-                    .text(update.getMessage().getText())
-                    .chatId(adminID)
-                    .build();
-            sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
-            sendMessage(sendMessage);
-        }
+//        for (var adminID : adminsID) {
+//            SendMessage sendMessage = SendMessage.builder()
+//                    .text(update.getMessage().getText())
+//                    .chatId(adminID)
+//                    .build();
+//            sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
+//            sendMessage(sendMessage);
+//        }
     }
 
     private String getReactionOfReject(String answer) {
@@ -125,7 +133,7 @@ public class LanaBot extends TelegramLongPollingBot {
         for(var user: users) {
             try {
                 Long botId = this.getMe().getId();
-                if (user.getId() == botId) {
+                if (user.getId().equals(botId)) {
                     System.out.println("I am added");
                 }
 
@@ -135,14 +143,16 @@ public class LanaBot extends TelegramLongPollingBot {
         }
     }
 
-//    private static boolean checkIfBotIsAdmin(Long chatId, long id) {
-//        GetChatMember getChatMember = new GetChatMember(chatId, id);
-//        try {
-//            ChatMember chatMember = bot.execute(getChatMember);
-//            return chatMember instanceof ChatMemberAdministrator;
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
+    private void checkGroupAndBotIsAdmin(Update update) {
+        var myChatMember = update.getMyChatMember();
+        var chat = myChatMember.getChat();
+        if (!chat.getType().equals("channel"))
+            return;
+        if (myChatMember.getNewChatMember() instanceof ChatMemberAdministrator) {
+            groupService.addChannel(chat);
+        }
+        if (myChatMember.getNewChatMember() instanceof ChatMemberLeft) {
+            groupService.deleteChannel(chat);
+        }
+    }
 }

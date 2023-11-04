@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Entity(name = "lana_user")
+@Entity(name = "core_user")
 @Table(schema = "public", catalog = "lana")
 public class User extends BaseEntity<UUID> {
     @Column(name = "telegram_id", nullable = false)

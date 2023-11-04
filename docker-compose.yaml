@@ -11,7 +11,7 @@ services:
     restart: on-failure
     environment:
       POSTGRES_DB_URL: jdbc:postgresql://postgres:5432/lana
-      TG_TOKEN: 6526296723:AAFPI60dFGA4AKhESy52efFGdvJ5o7b1m6A
+      TG_TOKEN: 6526296723:AAEEVBJUiIcQoGgmcV0e44f9pw_YuRhoh3s
     networks:
       - app-network
     depends_on:

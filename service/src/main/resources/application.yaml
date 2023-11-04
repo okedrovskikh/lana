@@ -7,6 +7,8 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
+  jpa:
+    show-sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${POSTGRES_DB_URL:jdbc:postgresql://localhost:5433/lana}

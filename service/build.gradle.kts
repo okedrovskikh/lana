@@ -21,6 +21,7 @@ extra["testcontainersVersion"] = "1.17.4"
 
 dependencies {
     implementation ("org.telegram:telegrambots-spring-boot-starter:6.8.0")
+    implementation("org.liquibase:liquibase-core")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("io.micrometer:micrometer-registry-prometheus")
