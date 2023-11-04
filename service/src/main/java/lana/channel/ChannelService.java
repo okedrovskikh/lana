@@ -3,6 +3,7 @@ package lana.channel;
 import lana.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -29,8 +30,9 @@ public class ChannelService {
         Channel channel = repository.getReferenceById(updateDto.getId());
         return repository.save(channel);
     }
-
-    public void deleteById(UUID id) {
-        repository.deleteById(id);
+    @Transactional
+    public void deleteByTelegramId(Long id) {
+        repository.deleteChannelsByTelegramId(id);
     }
+
 }

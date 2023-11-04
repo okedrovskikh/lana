@@ -1,12 +1,6 @@
 package lana.post;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lana.channel.Channel;
 import lana.common.BaseEntity;
 import lana.user.User;
@@ -22,10 +16,10 @@ import java.util.UUID;
 @Entity(name = "post")
 @Table(schema = "public", catalog = "lana")
 public class Post extends BaseEntity<UUID> {
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "channel_id")
+    @ManyToOne()
+    @JoinColumn(name = "chat_id")
     private Channel channel;
-    @ManyToOne(optional = false)
+    @ManyToOne()
     @JoinColumn(name = "author_id")
     private User author;
     @JdbcTypeCode(SqlTypes.JSON)

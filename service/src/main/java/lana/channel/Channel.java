@@ -1,11 +1,6 @@
 package lana.channel;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lana.common.BaseEntity;
 import lana.post.Post;
 import lombok.Getter;
@@ -21,9 +16,9 @@ import java.util.UUID;
 public class Channel extends BaseEntity<UUID> {
     @Column(name = "telegram_id", nullable = false)
     private Long telegramId;
-    @OneToMany(mappedBy = "channel")
+    @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
     private List<Post> posts;
-
+    {id = UUID.randomUUID();}
     @Override
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID getId() {
