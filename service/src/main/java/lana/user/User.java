@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lana.common.BaseEntity;
@@ -26,9 +27,10 @@ public class User extends BaseEntity<UUID> {
     private List<Post> posts;
     @OneToMany(mappedBy = "user")
     private List<Preference> preferences;
-    {id = UUID.randomUUID();}
+
     @Override
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
     public UUID getId() {
         return id;
     }
