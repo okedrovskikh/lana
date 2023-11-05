@@ -28,7 +28,6 @@ public class Post extends BaseEntity<UUID> {
 
     @Override
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
     public UUID getId() {
         return id;
     }
