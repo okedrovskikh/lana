@@ -24,6 +24,9 @@ public class UserService {
     public Optional<User> findById(UUID id) {
         return repository.findById(id);
     }
+    public Optional<User> findById(Long telegramId) {
+        return repository.findByTelegramId(telegramId);
+    }
 
     public User update(UserUpdateDto updateDto) {
         User user = repository.getReferenceById(updateDto.getId());

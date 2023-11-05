@@ -26,9 +26,9 @@ public class User extends BaseEntity<UUID> {
     private List<Post> posts;
     @OneToMany(mappedBy = "user")
     private List<Preference> preferences;
-
+    {id = UUID.randomUUID();}
     @Override
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public UUID getId() {
         return id;
     }

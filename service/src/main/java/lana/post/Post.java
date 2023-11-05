@@ -27,7 +27,7 @@ public class Post extends BaseEntity<UUID> {
     private PostPayload payload;
 
     @Override
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public UUID getId() {
         return id;
     }

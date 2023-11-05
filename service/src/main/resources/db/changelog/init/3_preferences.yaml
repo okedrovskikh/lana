@@ -1,14 +1,16 @@
 databaseChangeLog:
   - changeSet:
       author: okedrovskikh
-      id: create_preferences_table
+      id: create_preference_table
       changes:
         - createTable:
-            tableName: preferences
+            tableName: preference
             columns:
               - column:
                   name: id
-                  type: bigserial
+                  type: bigint
+                  incrementBy: 1
+                  startWith: 1
                   constraints:
                     primaryKey: true
               - column:
@@ -16,7 +18,7 @@ databaseChangeLog:
                   type: uuid
                   constraints:
                     nullable: false
-                    foreignKeyName: preferences_user_fk
+                    foreignKeyName: preference_user_fk
                     referencedTableName: user(id)
               - column:
                   name: resource_id
