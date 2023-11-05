@@ -1,12 +1,6 @@
 package lana.preferences;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lana.common.BaseEntity;
 import lana.user.User;
 import lombok.Getter;
@@ -25,15 +19,18 @@ public class Preference extends BaseEntity<Long> {
     @Column(name = "resource_id", nullable = false)
     private UUID resourceId;
     @Column(name = "action", nullable = false)
-    private String action;
+    @Enumerated(EnumType.STRING)
+    private Action action;
 
+    {resourceId = UUID.randomUUID();}
     @Override
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
 
     @Override
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public void setId(Long aLong) {
         id = aLong;
     }

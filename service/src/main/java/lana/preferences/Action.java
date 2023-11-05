@@ -1,6 +1,7 @@
 package lana.preferences;
 
 public enum Action {
-    ADMIN
+    ADMIN,
+    USER
     ;
 }

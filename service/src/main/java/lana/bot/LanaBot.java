@@ -5,54 +5,41 @@ import lana.properties.BotProperties;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberAdministrator;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberBanned;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberLeft;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class LanaBot extends TelegramLongPollingBot {
-
-//    private final List<String> adminsID = List.of("772298418", "387209539","441326472");
     private final BotProperties botProperties;
     private final PostCreatorService postCreatorService;
     private final GroupService groupService;
+    private final UserTelegramService userTelegramService;
 
-    public LanaBot(BotProperties botProperties , PostCreatorService postCreatorService, GroupService groupService) {
+    public LanaBot(BotProperties botProperties , PostCreatorService postCreatorService, GroupService groupService, UserTelegramService userTelegramService) {
         super(botProperties.getToken());
         this.botProperties = botProperties;
         this.postCreatorService = postCreatorService;
         this.groupService = groupService;
+        this.userTelegramService = userTelegramService;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMyChatMember()) {
-            checkGroupAndBotIsAdmin(update);
-            var myChatMember = update.getMyChatMember();
-            System.out.println(myChatMember.getChat().getType());
-            var toChatMember = myChatMember.getNewChatMember();
-            System.out.println("is bot --" + toChatMember.getUser().getIsBot());
-            if (toChatMember.getUser().getIsBot() && toChatMember.getStatus().equals("kick")) {
-                System.out.println("Is I, BOT");
-            } else {
-                System.out.println("NO");
-            }
-        } else{
-            System.out.println("NO1");
+            validateChatMembers(update);
         }
-//            List<User> users = update.getChatMember().getChat().getPinnedMessage().getNewChatMembers();
-//            if(users.size() != 0) {
-//                checkUpdatesAdmins(users);
-//            }
-
-
         //тупая заглушка чтобы просто протестить перессылку админу
 //        if (update.hasMessage()) {
 //            createMessageToAdminsApprove(update);
@@ -129,30 +116,53 @@ public class LanaBot extends TelegramLongPollingBot {
         return "~" + answer + "~";
     }
 
-    public void checkUpdatesAdmins(List<User> users) {
-        for(var user: users) {
-            try {
-                Long botId = this.getMe().getId();
-                if (user.getId().equals(botId)) {
-                    System.out.println("I am added");
-                }
+    private void findAdminsAfterAddGroup(Chat chat) {
+        List<ChatMember> admins = new ArrayList<>();
+        var id = chat.getId();
+        try {
+            admins = execute(new GetChatAdministrators(String.valueOf(id)));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+        //TODO: переделать на метод в репозиторй
+        for(var adm : admins) {
+            userTelegramService.createAdmin(adm.getUser(), chat.getId());
+        }
 
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
+    }
+    private void validateChatMembers(Update update) {
+        var myChatMember = update.getMyChatMember();
+        var chatMember = myChatMember.getNewChatMember();
+        var user = chatMember.getUser();
+        if (user.getIsBot()) {
+            doWithGroup(update);
         }
     }
-
-    private void checkGroupAndBotIsAdmin(Update update) {
+    private void doWithGroup(Update update) {
         var myChatMember = update.getMyChatMember();
+        var chatMember = myChatMember.getNewChatMember();
         var chat = myChatMember.getChat();
+
         if (!chat.getType().equals("channel"))
             return;
-        if (myChatMember.getNewChatMember() instanceof ChatMemberAdministrator) {
+
+        if (chatMember instanceof ChatMemberAdministrator) {
             groupService.addChannel(chat);
+            findAdminsAfterAddGroup(chat);
         }
-        if (myChatMember.getNewChatMember() instanceof ChatMemberLeft) {
+
+        if (chatMember instanceof ChatMemberLeft || chatMember instanceof ChatMemberBanned) {
             groupService.deleteChannel(chat);
+        }
+
+    }
+
+    private void checkUserIsAdminOrBanned(Update update) {
+        var myChatMember = update.getMyChatMember();
+        var newChatMember = myChatMember.getNewChatMember();
+//        var oldChatMember = myChatMember.getOldChatMember();
+        if (newChatMember instanceof ChatMemberAdministrator) {
+            userTelegramService.createAdmin(myChatMember);
         }
     }
 }

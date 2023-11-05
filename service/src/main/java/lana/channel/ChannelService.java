@@ -34,5 +34,8 @@ public class ChannelService {
     public void deleteByTelegramId(Long id) {
         repository.deleteChannelsByTelegramId(id);
     }
+    public Channel getByTelegramId(Long id) {
+        return repository.findByTelegramId(id).orElseThrow(() -> new NotFoundException("Not found channel by id =" + id, null));
+    }
 
 }
