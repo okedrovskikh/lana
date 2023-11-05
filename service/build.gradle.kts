@@ -20,14 +20,13 @@ configurations {
 extra["testcontainersVersion"] = "1.17.4"
 
 dependencies {
-    implementation ("org.telegram:telegrambots-spring-boot-starter:6.8.0")
+    implementation("org.telegram:telegrambots:6.8.0")
     implementation("org.liquibase:liquibase-core")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("io.micrometer:micrometer-registry-prometheus")
     compileOnly("org.projectlombok:lombok")
     compileOnly("org.mapstruct:mapstruct:1.5.3.Final")
-    compileOnly("jakarta.annotation:jakarta.annotation-api:1.3.5")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.projectlombok:lombok")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")

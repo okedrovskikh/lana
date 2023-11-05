@@ -20,7 +20,7 @@ services:
 
   postgres:
     image: postgis/postgis:15-3.3-alpine
-    container_name: postgres
+    container_name: lana-postgres
     restart: on-failure
     environment:
       POSTGRES_USER: postgres

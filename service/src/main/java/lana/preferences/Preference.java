@@ -22,15 +22,14 @@ public class Preference extends BaseEntity<Long> {
     @Enumerated(EnumType.STRING)
     private Action action;
 
-    {resourceId = UUID.randomUUID();}
     @Override
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     public Long getId() {
         return id;
     }
 
     @Override
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public void setId(Long aLong) {
         id = aLong;
     }
