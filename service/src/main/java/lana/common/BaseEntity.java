@@ -1,6 +1,5 @@
 package lana.common;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
@@ -8,6 +7,7 @@ import jakarta.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.util.Objects;
 
+@Deprecated // переделать как в preference
 @MappedSuperclass
 public abstract class BaseEntity<ID extends Serializable> {
     @Id

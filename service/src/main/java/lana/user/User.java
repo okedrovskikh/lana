@@ -30,7 +30,6 @@ public class User extends BaseEntity<UUID> {
 
     @Override
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
     public UUID getId() {
         return id;
     }
