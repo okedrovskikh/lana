@@ -1,5 +1,6 @@
 package lana.bot;
 
+import lana.channel.Channel;
 import lana.channel.ChannelCreateDto;
 import lana.channel.ChannelService;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,11 @@ public class GroupService {
     }
     public void deleteChannel(Chat chat){
         channelService.deleteByTelegramId(chat.getId());
+    }
+    public void deleteChannel(Channel chat){
+        channelService.delete(chat);
+    }
+    public Long getChannel() {
+        return channelService.findAll().get(0).getTelegramId();
     }
 }

@@ -2,6 +2,7 @@ package lana.preferences;
 
 public enum Action {
     ADMIN,
-    USER
+    USER,
+    CHANNEL_VIEW
     ;
 }

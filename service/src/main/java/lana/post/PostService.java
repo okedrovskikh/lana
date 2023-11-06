@@ -33,4 +33,7 @@ public class PostService {
     public void deleteById(UUID id) {
         repository.deleteById(id);
     }
+    public void create(Post post) {
+        repository.save(post);
+    }
 }

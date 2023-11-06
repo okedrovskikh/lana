@@ -2,9 +2,9 @@ package lana.preferences;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +24,11 @@ public class PreferenceService {
         return repository.findByUserTelegramId(id);
     }
 
-    @Transactional
-    public void deletePreference(Preference preference) {
-        repository.deletePreferenceById(preference.getId());
+    public void deletePreferences(UUID id) {
+        repository.deletePreferences(id);
+    }
+
+    public List<Preference> findPreferenceByResourceId(UUID resource_id) {
+        return repository.findPreferences(resource_id);
     }
 }
