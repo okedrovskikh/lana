@@ -1,5 +1,6 @@
 package lana.bot;
 
+import lana.channel.Channel;
 import lana.channel.ChannelService;
 import lana.preferences.Action;
 import lana.preferences.Preference;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -35,12 +38,10 @@ public class UserTelegramService {
         preference.setUser(user);
         preference.setResourceId(channelService.getByTelegramId(chatMemberUpdated.getChat().getId()).getId());
         preference.setAction(Action.ADMIN);
-        preference.setId(1L);
         preferenceService.createPreference(preference);
     }
-    private static Long l = 1L;
     @Transactional
-    public void createAdmin(org.telegram.telegrambots.meta.api.objects.User userTG, Long channelId) {
+    public void createAdmin(org.telegram.telegrambots.meta.api.objects.User userTG, Long chatId) {
 
         var userOptional = userService.findById(userTG.getId());
         User user;
@@ -53,17 +54,22 @@ public class UserTelegramService {
         }
         Preference preference = new Preference();
         preference.setUser(user);
-        preference.setResourceId(channelService.getByTelegramId(channelId).getId());
+        preference.setResourceId(channelService.getByTelegramId(chatId).getId());
         preference.setAction(Action.ADMIN);
-        preference.setId(l);
-        l++;
         preferenceService.createPreference(preference);
     }
+    @Transactional
+    public void createAdmins(List<org.telegram.telegrambots.meta.api.objects.User> admins, Long chatId) {
+        for(var adm : admins) {
+            createAdmin(adm, chatId);
+        }
+    }
     //TODO: сделать удаление админов
-//    @Transactional
-//    public void deleteAdmin(org.telegram.telegrambots.meta.api.objects.User userTG, Long channelId) {
-//
-//        Optional<Preference> preferenceOpt = preferenceService.findByTelegramId(channelId);
-//        preferenceService.createPreference(preference);
-//    }
+    @Transactional
+    public void deleteAdminsAndChannel(Chat chat) {
+        Channel chan = channelService.getByTelegramId(chat.getId());
+        System.out.println(chan.getId());
+        preferenceService.deletePreferences(chan.getId());
+        channelService.delete(chan);
+    }
 }

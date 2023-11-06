@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,5 +38,10 @@ public class ChannelService {
     public Channel getByTelegramId(Long id) {
         return repository.findByTelegramId(id).orElseThrow(() -> new NotFoundException("Not found channel by id =" + id, null));
     }
-
+    public void delete(Channel channel) {
+        repository.delete(channel);
+    }
+    public List<Channel> findAll() {
+        return repository.findAll();
+    }
 }

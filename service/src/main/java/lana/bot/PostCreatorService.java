@@ -1,29 +1,57 @@
 package lana.bot;
 
 import lana.channel.Channel;
+import lana.channel.ChannelService;
 import lana.post.Post;
 import lana.post.PostPayload;
+import lana.post.PostService;
+import lana.preferences.Preference;
+import lana.preferences.PreferenceService;
 import lana.user.User;
+import lana.user.UserCreateDto;
+import lana.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.telegram.telegrambots.meta.api.objects.Message;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class PostCreatorService {
-    public Post generatePost(Long telegramUserID, Long telegramChannelId, String text, Byte[] binaryData) {
+    private final PostService postService;
+    private final ChannelService channelService;
+    private final UserService userService;
+    private final PreferenceService preferenceService;
+    @Transactional
+    public List<Long> generatePost(Message message) {
         Post post = new Post();
+        Optional<User> userOpt = userService.findById(message.getChat().getId());
+        User user;
 
-        PostPayload postPayload = new PostPayload();
-        postPayload.setBinaryData(binaryData);
-        postPayload.setText(text);
+        if(userOpt.isEmpty()) {
+            UserCreateDto userCreateDto = new UserCreateDto();
+            userCreateDto.setTelegramId(message.getChat().getId());
+            user = userService.create(userCreateDto);
+        } else {
+            user = userOpt.get();
+        }
 
-        post.setPayload(postPayload);
-
-        Channel channel = new Channel();
-        channel.setTelegramId(telegramChannelId);
-
-        post.setChannel(channel);
-        User user = new User();
-        user.setTelegramId(telegramUserID);
         post.setAuthor(user);
-        return post;
+        List<Channel> channels = channelService.findAll();
+        post.setChannel(channels.get(0));
+        PostPayload postPayload = new PostPayload();
+        postPayload.setText(message.getText());
+        post.setPayload(postPayload);
+        postService.create(post);
+        List<Preference> p = preferenceService.findPreferenceByResourceId(channels.get(0).getId());
+        List<Long> ids = new ArrayList<>();
+        for(var pref : p) {
+            ids.add(pref.getUser().getTelegramId());
+        }
+        return ids;
     }
 }

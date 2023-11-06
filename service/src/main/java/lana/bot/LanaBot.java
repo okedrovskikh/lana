@@ -41,14 +41,15 @@ public class LanaBot extends TelegramLongPollingBot {
             validateChatMembers(update);
         }
         //тупая заглушка чтобы просто протестить перессылку админу
-//        if (update.hasMessage()) {
-//            createMessageToAdminsApprove(update);
-//        }
+        if (update.hasMessage() && update.getMessage().getChat().getType().equals("private")) {
+            createMessageToAdminsApprove(update);
+        }
 //        //тут типа действия при том или ином нажатии кнопки, я пока сделал заглушку такую
-//        if (update.hasCallbackQuery()) {
-//            processingCallBackData(update);
-//        }
+        if (update.hasCallbackQuery()) {
+            processingCallBackData(update);
+        }
     }
+
 
     @Override
     public String getBotUsername() {
@@ -57,11 +58,19 @@ public class LanaBot extends TelegramLongPollingBot {
 
     private void processingCallBackData(Update update) {
 
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(groupService.getChannel());
         String callData = update.getCallbackQuery().getData();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         String answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ?
                 "Принял предложку" : getReactionOfReject(update.getCallbackQuery().getMessage().getText());
+
+        if(callData.equals(BotCallbacks.ACCEPT.getCallbackData())) {
+            sendMessage.setText(update.getCallbackQuery().getMessage().getText());
+            sendMessage(sendMessage);
+        }
+
         EditMessageText editMessageText = EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(messageId)
@@ -87,29 +96,23 @@ public class LanaBot extends TelegramLongPollingBot {
             execute(sendMessage);
             execute(sendChatAction);
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
     private void createMessageToAdminsApprove(Update update) {
-        //TODO: делегировать пост крейтор сервису создание поста для бд
-//        Message message = update.getMessage();getMessage
-//        Long userID = message.getChat().getId();
-//        String text = message.getText();
-//        //TODO: научиться получать контент из сообщения
-//        Byte[] binaryData = null;
-//        Post post = postCreatorService.generatePost(userID,);
+        List<Long> admins = postCreatorService.generatePost(update.getMessage());
 
         KeyBoardHandler keyBoardHandler = new KeyBoardHandler();
 
-//        for (var adminID : adminsID) {
-//            SendMessage sendMessage = SendMessage.builder()
-//                    .text(update.getMessage().getText())
-//                    .chatId(adminID)
-//                    .build();
-//            sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
-//            sendMessage(sendMessage);
-//        }
+        for (var admin : admins) {
+            SendMessage sendMessage = SendMessage.builder()
+                    .text(update.getMessage().getText())
+                    .chatId(admin)
+                    .build();
+            sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
+            sendMessage(sendMessage);
+        }
     }
 
     private String getReactionOfReject(String answer) {
@@ -124,10 +127,11 @@ public class LanaBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        //TODO: переделать на метод в репозиторй
-        for(var adm : admins) {
-            userTelegramService.createAdmin(adm.getUser(), chat.getId());
-        }
+        List<org.telegram.telegrambots.meta.api.objects.User> adminUsers = admins.stream()
+                .map(ChatMember::getUser).
+                filter(adm->!adm.getIsBot()).toList();
+        userTelegramService.createAdmins(adminUsers, chat.getId());
+
 
     }
     private void validateChatMembers(Update update) {
@@ -152,7 +156,7 @@ public class LanaBot extends TelegramLongPollingBot {
         }
 
         if (chatMember instanceof ChatMemberLeft || chatMember instanceof ChatMemberBanned) {
-            groupService.deleteChannel(chat);
+            userTelegramService.deleteAdminsAndChannel(chat);
         }
 
     }
