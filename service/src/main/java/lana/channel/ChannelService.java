@@ -44,4 +44,8 @@ public class ChannelService {
     public List<Channel> findAll() {
         return repository.findAll();
     }
+
+    public Channel getChannel(String tag){
+        return repository.findByTag(tag);
+    }
 }

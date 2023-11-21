@@ -57,9 +57,8 @@ public class LanaBot extends TelegramLongPollingBot {
     }
 
     private void processingCallBackData(Update update) {
-
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(groupService.getChannel());
+        sendMessage.setChatId(groupService.getChannel(update.getCallbackQuery().getMessage().getEntities().get(0).getText()));
         String callData = update.getCallbackQuery().getData();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
         long chatId = update.getCallbackQuery().getMessage().getChatId();

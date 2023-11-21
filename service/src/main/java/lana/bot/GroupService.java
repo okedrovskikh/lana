@@ -16,6 +16,7 @@ public class GroupService {
     public void addChannel(Chat chat) {
         var channelDTO = new ChannelCreateDto();
         channelDTO.setChatID(chat.getId());
+        channelDTO.setTag('@'+ chat.getUserName());
         channelService.create(channelDTO);
     }
     public void deleteChannel(Chat chat){
@@ -24,7 +25,7 @@ public class GroupService {
     public void deleteChannel(Channel chat){
         channelService.delete(chat);
     }
-    public Long getChannel() {
-        return channelService.findAll().get(0).getTelegramId();
+    public Long getChannel(String tag) {
+        return channelService.getChannel(tag).getTelegramId();
     }
 }
