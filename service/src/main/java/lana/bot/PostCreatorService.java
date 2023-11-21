@@ -31,7 +31,7 @@ public class PostCreatorService {
         Post post = new Post();
         Optional<User> userOpt = userService.findById(message.getChat().getId());
         User user;
-
+        message.getEntities().get(0).getText();
         if(userOpt.isEmpty()) {
             UserCreateDto userCreateDto = new UserCreateDto();
             userCreateDto.setTelegramId(message.getChat().getId());
@@ -41,13 +41,13 @@ public class PostCreatorService {
         }
 
         post.setAuthor(user);
-        List<Channel> channels = channelService.findAll();
-        post.setChannel(channels.get(0));
+        Channel channel = channelService.getChannel(message.getEntities().get(0).getText());
+        post.setChannel(channel);
         PostPayload postPayload = new PostPayload();
         postPayload.setText(message.getText());
         post.setPayload(postPayload);
         postService.create(post);
-        List<Preference> p = preferenceService.findPreferenceByResourceId(channels.get(0).getId());
+        List<Preference> p = preferenceService.findPreferenceByResourceId(channel.getId());
         List<Long> ids = new ArrayList<>();
         for(var pref : p) {
             ids.add(pref.getUser().getTelegramId());

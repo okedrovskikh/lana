@@ -1,13 +1,6 @@
 package lana.channel;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lana.common.BaseEntity;
 import lana.post.Post;
 import lombok.Getter;
@@ -25,6 +18,8 @@ public class Channel extends BaseEntity<UUID> {
     private Long telegramId;
     @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL)
     private List<Post> posts;
+    @Column(name = "tag",nullable = false)
+    private String tag;
 
     @Override
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -20,3 +20,9 @@ databaseChangeLog:
                   constraints:
                     unique: true
                     nullable: false
+              - column:
+                  name: tag
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
