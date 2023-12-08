@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 
 import java.util.UUID;
 
@@ -25,6 +26,8 @@ public class Post extends BaseEntity<UUID> {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload", nullable = false, columnDefinition = "jsonb")
     private PostPayload payload;
+
+//    private PhotoSize photoSize;
 
     @Override
     @GeneratedValue(strategy = GenerationType.UUID)

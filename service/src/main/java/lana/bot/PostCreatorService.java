@@ -31,7 +31,6 @@ public class PostCreatorService {
         Post post = new Post();
         Optional<User> userOpt = userService.findById(message.getChat().getId());
         User user;
-        message.getEntities().get(0).getText();
         if(userOpt.isEmpty()) {
             UserCreateDto userCreateDto = new UserCreateDto();
             userCreateDto.setTelegramId(message.getChat().getId());
@@ -41,11 +40,19 @@ public class PostCreatorService {
         }
 
         post.setAuthor(user);
-        Channel channel = channelService.getChannel(message.getEntities().get(0).getText());
+        Channel channel;
+        if(message.getEntities()!=null) {
+            channel = channelService.getChannel(message.getEntities().get(0).getText());
+        }
+        else{
+            channel = channelService.getChannel(message.getCaptionEntities().get(0).getText());
+        }
         post.setChannel(channel);
         PostPayload postPayload = new PostPayload();
         postPayload.setText(message.getText());
+        postPayload.setFileId(message.getPhoto().get(0).getFileId());
         post.setPayload(postPayload);
+//        post.setPhotoSize(message.getPhoto().get(0));
         postService.create(post);
         List<Preference> p = preferenceService.findPreferenceByResourceId(channel.getId());
         List<Long> ids = new ArrayList<>();

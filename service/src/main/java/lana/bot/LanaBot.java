@@ -8,8 +8,12 @@ import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatAdministrators;
 import org.telegram.telegrambots.meta.api.methods.send.SendChatAction;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageCaption;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberAdministrator;
@@ -57,27 +61,30 @@ public class LanaBot extends TelegramLongPollingBot {
     }
 
     private void processingCallBackData(Update update) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(groupService.getChannel(update.getCallbackQuery().getMessage().getEntities().get(0).getText()));
+        SendPhoto sendMessage = new SendPhoto();
+        sendMessage.setChatId(groupService.getChannel(update.getCallbackQuery().getMessage().getCaptionEntities().get(0).getText()));
         String callData = update.getCallbackQuery().getData();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         String answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ?
-                "Принял предложку" : getReactionOfReject(update.getCallbackQuery().getMessage().getText());
+                "Принял предложку" : getReactionOfReject(update.getCallbackQuery().getMessage().getCaption());
 
         if(callData.equals(BotCallbacks.ACCEPT.getCallbackData())) {
-            sendMessage.setText(update.getCallbackQuery().getMessage().getText());
-            sendMessage(sendMessage);
+            InputFile inputFile = new InputFile();
+            inputFile.setMedia(update.getCallbackQuery().getMessage().getPhoto().get(0).getFileId());
+            sendMessage.setPhoto(inputFile);
+            sendMessage.setCaption(update.getCallbackQuery().getMessage().getCaption());
+            sendPhoto(sendMessage);
         }
 
-        EditMessageText editMessageText = EditMessageText.builder()
+        EditMessageCaption editMessageText = EditMessageCaption.builder()
                 .chatId(chatId)
                 .messageId(messageId)
-                .text(answer).parseMode("MarkdownV2").build();
+                .caption(answer).parseMode("MarkdownV2").build();
         editMessage(editMessageText);
     }
 
-    private void editMessage(EditMessageText editMessageText) {
+    private void editMessage(EditMessageCaption editMessageText) {
         try {
             execute(editMessageText);
         } catch (TelegramApiException e) {
@@ -98,19 +105,43 @@ public class LanaBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+    private void sendPhoto(SendPhoto sendPhoto) {
+        SendChatAction sendChatAction = SendChatAction.builder()
+                .chatId(sendPhoto.getChatId())
+                .action(ActionType.TYPING.toString())
+                .build();
+
+        try {
+            execute(sendPhoto);
+            execute(sendChatAction);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void createMessageToAdminsApprove(Update update) {
         List<Long> admins = postCreatorService.generatePost(update.getMessage());
-
         KeyBoardHandler keyBoardHandler = new KeyBoardHandler();
 
         for (var admin : admins) {
-            SendMessage sendMessage = SendMessage.builder()
-                    .text(update.getMessage().getText())
-                    .chatId(admin)
-                    .build();
-            sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
-            sendMessage(sendMessage);
+            if(update.getMessage().getText()!=null) {
+                SendMessage sendMessage = SendMessage.builder()
+                        .text(update.getMessage().getText())
+                        .chatId(admin)
+                        .build();
+                sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
+                sendMessage(sendMessage);
+            }
+            else{
+                InputFile inputFile = new InputFile();
+                inputFile.setMedia(update.getMessage().getPhoto().get(0).getFileId());
+                SendPhoto msg = new SendPhoto();
+                msg.setChatId(admin);
+                msg.setPhoto(inputFile);
+                msg.setCaption(update.getMessage().getCaption());
+                msg = keyBoardHandler.createInlineKeyBoardForPhoto(msg);
+                sendPhoto(msg);
+            }
         }
     }
 
