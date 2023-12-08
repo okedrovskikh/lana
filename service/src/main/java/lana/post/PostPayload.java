@@ -6,4 +6,5 @@ import lombok.Data;
 public class PostPayload {
     private String text;
     private Byte[] binaryData;
+    private String fileId;
 }
