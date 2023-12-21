@@ -31,7 +31,7 @@ public class LanaBot extends TelegramLongPollingBot {
     private final GroupService groupService;
     private final UserTelegramService userTelegramService;
 
-    public LanaBot(BotProperties botProperties , PostCreatorService postCreatorService, GroupService groupService, UserTelegramService userTelegramService) {
+    public LanaBot(BotProperties botProperties, PostCreatorService postCreatorService, GroupService groupService, UserTelegramService userTelegramService) {
         super(botProperties.getToken());
         this.botProperties = botProperties;
         this.postCreatorService = postCreatorService;
@@ -44,11 +44,11 @@ public class LanaBot extends TelegramLongPollingBot {
         if (update.hasMyChatMember()) {
             validateChatMembers(update);
         }
-        //тупая заглушка чтобы просто протестить перессылку админу
+
         if (update.hasMessage() && update.getMessage().getChat().getType().equals("private")) {
             createMessageToAdminsApprove(update);
         }
-//        //тут типа действия при том или ином нажатии кнопки, я пока сделал заглушку такую
+
         if (update.hasCallbackQuery()) {
             processingCallBackData(update);
         }
@@ -62,33 +62,69 @@ public class LanaBot extends TelegramLongPollingBot {
 
     private void processingCallBackData(Update update) {
         SendPhoto sendMessage = new SendPhoto();
-        sendMessage.setChatId(groupService.getChannel(update.getCallbackQuery().getMessage().getCaptionEntities().get(0).getText()));
+        String tag;
+        List<MessageEntity> msg = update.getCallbackQuery().getMessage().getCaptionEntities();
+        if (msg != null) {
+            tag = msg.get(0).getText();
+        } else {
+            tag = update.getCallbackQuery().getMessage().getEntities().get(0).getText();
+        }
+        sendMessage.setChatId(groupService.getChannel(tag));
         String callData = update.getCallbackQuery().getData();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
         long chatId = update.getCallbackQuery().getMessage().getChatId();
-        String answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ?
-                "Принял предложку" : getReactionOfReject(update.getCallbackQuery().getMessage().getCaption());
-
-        if(callData.equals(BotCallbacks.ACCEPT.getCallbackData())) {
+        String answer;
+        if (update.getCallbackQuery().getMessage().getCaption() != null) {
+             answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ?
+                    "Принял предложку" : getReactionOfReject(update.getCallbackQuery().getMessage().getCaption());
+        } else {
+            answer = callData.equals(BotCallbacks.ACCEPT.getCallbackData()) ?
+                    "Принял предложку" : getReactionOfReject(update.getCallbackQuery().getMessage().getText());
+        }
+        boolean b = false;
+        if (callData.equals(BotCallbacks.ACCEPT.getCallbackData()) &&
+                update.getCallbackQuery().getMessage().getPhoto() != null) {
             InputFile inputFile = new InputFile();
             inputFile.setMedia(update.getCallbackQuery().getMessage().getPhoto().get(0).getFileId());
             sendMessage.setPhoto(inputFile);
             sendMessage.setCaption(update.getCallbackQuery().getMessage().getCaption());
             sendPhoto(sendMessage);
+            b = true;
+        }
+        else if (callData.equals(BotCallbacks.ACCEPT.getCallbackData())) {
+            SendMessage sendMessageWithoutPhoto = new SendMessage();
+            sendMessageWithoutPhoto.setChatId(groupService.getChannel(tag));
+            sendMessageWithoutPhoto.setText(update.getCallbackQuery().getMessage().getText());
+            sendMessage(sendMessageWithoutPhoto);
+
         }
 
         EditMessageCaption editMessageText = EditMessageCaption.builder()
                 .chatId(chatId)
                 .messageId(messageId)
                 .caption(answer).parseMode("MarkdownV2").build();
-        editMessage(editMessageText);
+        EditMessageText editMessageTextWithoutPhoto = EditMessageText.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .text(answer).parseMode("MarkdownV2").build();
+        if (b)
+            editMessage(editMessageText);
+        else
+            editMessageWithoutPhoto(editMessageTextWithoutPhoto);
     }
 
     private void editMessage(EditMessageCaption editMessageText) {
         try {
             execute(editMessageText);
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+        }
+    }
+    private void editMessageWithoutPhoto(EditMessageText editMessageText) {
+        try {
+            execute(editMessageText);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
 
@@ -105,6 +141,7 @@ public class LanaBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
     private void sendPhoto(SendPhoto sendPhoto) {
         SendChatAction sendChatAction = SendChatAction.builder()
                 .chatId(sendPhoto.getChatId())
@@ -124,15 +161,14 @@ public class LanaBot extends TelegramLongPollingBot {
         KeyBoardHandler keyBoardHandler = new KeyBoardHandler();
 
         for (var admin : admins) {
-            if(update.getMessage().getText()!=null) {
+            if (update.getMessage().getText() != null) {
                 SendMessage sendMessage = SendMessage.builder()
                         .text(update.getMessage().getText())
                         .chatId(admin)
                         .build();
                 sendMessage = keyBoardHandler.createInlineKeyBoard(sendMessage);
                 sendMessage(sendMessage);
-            }
-            else{
+            } else {
                 InputFile inputFile = new InputFile();
                 inputFile.setMedia(update.getMessage().getPhoto().get(0).getFileId());
                 SendPhoto msg = new SendPhoto();
@@ -159,11 +195,12 @@ public class LanaBot extends TelegramLongPollingBot {
         }
         List<org.telegram.telegrambots.meta.api.objects.User> adminUsers = admins.stream()
                 .map(ChatMember::getUser).
-                filter(adm->!adm.getIsBot()).toList();
+                filter(adm -> !adm.getIsBot()).toList();
         userTelegramService.createAdmins(adminUsers, chat.getId());
 
 
     }
+
     private void validateChatMembers(Update update) {
         var myChatMember = update.getMyChatMember();
         var chatMember = myChatMember.getNewChatMember();
@@ -172,6 +209,7 @@ public class LanaBot extends TelegramLongPollingBot {
             doWithGroup(update);
         }
     }
+
     private void doWithGroup(Update update) {
         var myChatMember = update.getMyChatMember();
         var chatMember = myChatMember.getNewChatMember();
@@ -194,7 +232,6 @@ public class LanaBot extends TelegramLongPollingBot {
     private void checkUserIsAdminOrBanned(Update update) {
         var myChatMember = update.getMyChatMember();
         var newChatMember = myChatMember.getNewChatMember();
-//        var oldChatMember = myChatMember.getOldChatMember();
         if (newChatMember instanceof ChatMemberAdministrator) {
             userTelegramService.createAdmin(myChatMember);
         }

@@ -50,9 +50,9 @@ public class PostCreatorService {
         post.setChannel(channel);
         PostPayload postPayload = new PostPayload();
         postPayload.setText(message.getText());
-        postPayload.setFileId(message.getPhoto().get(0).getFileId());
+        if (message.getPhoto() != null && message.getPhoto().size() != 0)
+            postPayload.setFileId(message.getPhoto().get(0).getFileId());
         post.setPayload(postPayload);
-//        post.setPhotoSize(message.getPhoto().get(0));
         postService.create(post);
         List<Preference> p = preferenceService.findPreferenceByResourceId(channel.getId());
         List<Long> ids = new ArrayList<>();
